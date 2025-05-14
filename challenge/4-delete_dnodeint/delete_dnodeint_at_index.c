@@ -11,44 +11,48 @@
  */
 int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 {
-	dlistint_t *saved_head;
-	dlistint_t *tmp;
+	dlistint_t *current;
 	unsigned int p;
 
 	if (*head == NULL)
 	{
 		return (-1);
 	}
-	saved_head = *head;
-	p = 0;
-	while (p < index && *head != NULL)
+	
+	current = *head;
+	
+	if (index == 0)
 	{
-		*head = (*head)->next;
+		*head = current->next;
+		if (*head != NULL)
+		{
+			(*head)->prev = NULL;
+		}
+		free(current);
+		return (1);
+	}
+	
+	/* Traverse to the node at the specified index */
+	p = 0;
+	while (p < index && current != NULL)
+	{
+		current = current->next;
 		p++;
 	}
-	if (p != index)
+	
+	/* If we reached the end of the list before reaching the index */
+	if (current == NULL)
 	{
-		*head = saved_head;
 		return (-1);
 	}
-	if (0 == index)
+	
+	/* Update the pointers of surrounding nodes */
+	current->prev->next = current->next;
+	if (current->next != NULL)
 	{
-		tmp = (*head)->next;
-		free(*head);
-		*head = tmp;
-		if (tmp != NULL)
-		{
-			tmp->prev = NULL;
-		}
+		current->next->prev = current->prev;
 	}
-	else
-	{
-		tmp = *head;
-		tmp->prev->next = tmp->next;
-		if (tmp->next)
-    	tmp->next->prev = tmp->prev;
-		free(tmp);
-		*head = saved_head;
-	}
+	
+	free(current);
 	return (1);
 }
